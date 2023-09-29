@@ -3,7 +3,7 @@ import createError from 'http-errors'
 import multer from 'multer'
 
 // TODO: import Firebase dependencies
-import { getAuth, signInWitheEmailAndPassword } from 'firebase/auth'
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 
 // TODO: import Firebase applications
 import firebaseApp from '../firebase.js'
@@ -25,7 +25,7 @@ router.get('/auth', function (req, res, next) {
 
 router.post('/auth', function (req, res, next) {
   const { username, password } = req.body
-  signInWitheEmailAndPassword(auth, username, password)
+  signInWithEmailAndPassword(auth, username, password)
    .then(() => {
     res.redirect('/')
    })
