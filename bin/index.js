@@ -1,92 +1,59 @@
-#!/usr/bin/env node
-import debug from 'debug'
-import http from 'http'
+import express from 'express'
+import createError from 'http-errors'
+import multer from 'multer'
 
-import app from '../app.js'
+// TODO: import Firebase dependencies
+import { getAuth, signInWitheEmailAndPassword } from 'firebase/auth'
 
-/**
- * Module dependencies.
- */
+// TODO: import Firebase applications
+import firebaseApp from '../firebase.js'
 
-const debugLog = debug('firebase-web:server')
+const router = express.Router()
+const upload = multer()
 
-/**
- * Get port from environment and store in Express.
- */
+// TODO: create Firebase modules
+const auth = getAuth(firebaseApp)
 
-const port = normalizePort(process.env.PORT || '3000')
-app.set('port', port)
+/* GET home page. */
+router.get('/', function (req, res, next) {
+  res.render('index', { user: auth.currentUser })
+})
 
-/**
- * Create HTTP server.
- */
+router.get('/auth', function (req, res, next) {
+  res.render('auth')
+})
 
-const server = http.createServer(app)
+router.post('/auth', function (req, res, next) {
+  const { username, password } = req.body
+  signInWitheEmailAndPassword(auth, username, password)
+   .then(() => {
+    res.redirect('/')
+   })
+   .catch((_) => {
+    res.render('auth', {error: 'Wrong credentials'})
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+   })
+})
 
-server.listen(port)
-server.on('error', onError)
-server.on('listening', onListening)
+router.get('/logout', function (req, res, next) {
+  // TODO
+})
 
-/**
- * Normalize a port into a number, string, or false.
- */
+router.get('/gallery', function (req, res, next) {
+  const images = []
+  // TODO
+  res.render('gallery', { images })
+})
 
-function normalizePort(val) {
-    const port = parseInt(val, 10)
+router.post('/gallery', upload.single('image'), function (req, res, next) {
+  const file = req.file
+  // TODO
+})
 
-    if (isNaN(port)) {
-        // named pipe
-        return val
-    }
+router.get('/articles', async function (req, res, next) {
+  const articles = []
+  // TODO
+  res.render('articles', { articles })
+})
 
-    if (port >= 0) {
-        // port number
-        return port
-    }
-
-    return false
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-    if (error.syscall !== 'listen') {
-        throw error
-    }
-
-    const bind = typeof port === 'string'
-        ? 'Pipe ' + port
-        : 'Port ' + port
-
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-        case 'EACCES':
-            console.error(bind + ' requires elevated privileges')
-            process.exit(1)
-            break
-        case 'EADDRINUSE':
-            console.error(bind + ' is already in use')
-            process.exit(1)
-            break
-        default:
-            throw error
-    }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-    const addr = server.address()
-    const bind = typeof addr === 'string'
-        ? 'pipe ' + addr
-        : 'port ' + addr.port
-    debugLog('Listening on ' + bind)
-}
+export default router
